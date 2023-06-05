@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Список студентов";
+}
+@model List<StudentModel>
+<a asp-action="Finish">Студенты готовые к импорту</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">ФИО</th>
+            <th scope="col">Группа</th>
+            <th scope="col">Данные</th>
+            <th scope="col">Оценки</th>
+            <th scope="col">Диплом и приложение</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var student in Model)
+        {
+            <tr>
+                <th scope="row">@student.Id) @student.Initials.Title_RU</th>
+                <td>@student.Group.Title.Title_RU</td>
+                <td><a class="btn btn-danger" asp-action="Edit" asp-route-studentId="@student.Id">Изменить</a></td>
+                <td><a class="btn btn-info" asp-controller="Grade" asp-action="Info" asp-route-studentId="@student.Id">Распределить</a></td>
+                <td><a class="btn btn-info" asp-controller="Grade" asp-action="Download" asp-route-studentId="@student.Id">Сгенерировать</a></td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-primary" asp-action="Create">Добавить</a>

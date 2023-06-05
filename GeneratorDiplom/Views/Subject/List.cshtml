@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Список предметов";
+}
+@model List<SubjectModel>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Название(рус)</th>
+            <th>Название(каз)</th>
+            <th>Кол-во часов</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var subject in Model)
+        {
+            <tr>
+                <td>@subject.Id</td>
+                <td>@subject.Title.Title_RU</td>
+                <td>@subject.Title.Title_KZ</td>
+                <td>@subject.Hours</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-primary" asp-action="Create">Добавить</a>

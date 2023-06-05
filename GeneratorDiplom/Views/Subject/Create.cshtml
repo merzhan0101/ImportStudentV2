@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "Редактирование информации";
+}
+@model SubjectModel
+<form method="post">
+    <div class="form-group">
+        <label for="title_ru">Название на русском</label>
+        <input class="form-control" id="title_ru" name="title_ru">
+    </div>
+
+    <div class="form-group">
+        <label for="title_kz">Название на казахском</label>
+        <input class="form-control" id="title_kz" name="title_kz">
+    </div>
+
+    <div class="form-group">
+        <label for="hours">Кол-во часов</label>
+        <input class="form-control" id="hours" name="hours">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>

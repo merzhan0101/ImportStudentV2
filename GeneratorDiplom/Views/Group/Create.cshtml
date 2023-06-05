@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "Редактирование информации";
+}
+@model GeneratorDiplom.ViewModels.Group.GroupViewModel
+<form method="post">
+    <div class="form-group">
+        <label asp-for="Title_RU"></label>
+        <input class="form-control" asp-for="Title_RU">
+        <span asp-validation-for="Title_RU" class="form-text text-muted"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Title_KZ"></label>
+        <input class="form-control" asp-for="Title_KZ">
+        <span asp-validation-for="Title_KZ" class="form-text text-muted"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Qualification_RU"></label>
+        <input class="form-control" asp-for="Qualification_RU">
+        <span asp-validation-for="Qualification_RU" class="form-text text-muted"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Qualification_KZ"></label>
+        <input class="form-control" asp-for="Qualification_KZ">
+        <span asp-validation-for="Qualification_KZ" class="form-text text-muted"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Code"></label>
+        <input class="form-control" asp-for="Code">
+        <span asp-validation-for="Code" class="form-text text-muted"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Lang"></label>
+        <select class="form-control form-select" asp-for="Lang">
+            <option value="1">Русский</option>
+            <option value="2">Казахский</option>
+        </select>
+        <span asp-validation-for="Lang" class="form-text text-muted"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartStudies"></label>
+        <input class="form-control" asp-for="StartStudies">
+        <span asp-validation-for="StartStudies" class="form-text text-muted"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EndStudies"></label>
+        <input class="form-control" asp-for="EndStudies">
+        <span asp-validation-for="EndStudies" class="form-text text-muted"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>

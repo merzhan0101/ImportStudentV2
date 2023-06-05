@@ -1,0 +1,37 @@
+﻿@{
+    ViewData["Title"] = "Оценки";
+}
+@model List<GradeModel>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Предмет</th>
+            <th scope="col">Оценка</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var grade in Model)
+        {
+            <tr>
+                <th scope="row">@grade.Subject.Title.Title_RU</th>
+                <th>
+                    <input class="text-center" data-gradeId="@grade.Id" value="@grade.Score"/>
+                </th>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-info" id="btnSave">Сохранить</button>
+@section Scripts{ 
+    <script>
+        $('#btnSave').click(function () {
+            $('input').each(function () {
+                var id = $(this).attr("data-gradeId");
+                var val = $(this).val();
+                $.post("/Grade/Set", { id: id, val: val }).done(function (data) {
+                    alert(data);
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,26 @@
+﻿@{
+    ViewData["Title"] = "Список групп";
+}
+@model List<GroupModel>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Группа</th>
+            <th scope="col">Панель управления</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var group in Model)
+        {
+            <tr>
+                <td>@group.Code "@group.Title.Title_RU (@group.StartStudies - @group.EndStudies)"</td>
+                <td>
+                    <a class="btn btn-info" asp-controller="Subject" asp-action="List" asp-route-groupId="@group.Id">Дисциплины (@group.Subjects.Count)</a>
+                    <a class="btn btn-danger" asp-action="Edit" asp-route-groupId="@group.Id">Изменить</a>
+                    @*<a class="btn btn-info" asp-action="DownloadAll" asp-controller="Grade" asp-route-groupId="@group.Id">Скачать</a>*@
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a class="btn btn-primary" asp-action="Create">Добавить</a>
