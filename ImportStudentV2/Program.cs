@@ -210,10 +210,10 @@ namespace ImportStudentV2
                         }
                         for (int row = 1; row <= 53; row++)
                         {
-                            string title_ru = document.Read(row, offsetTitle, page)
-                                .Replace(" (факультатив)", "")
-                                .Replace(" (курстық жоба)", "")
-                                .Replace(" (курсовой проект)", "");
+                            string title_ru = document.Read(row, offsetTitle, page);
+                                //.Replace(" (факультатив)", "")
+                                //.Replace(" (курстық жоба)", "")
+                                //.Replace(" (курсовой проект)", "");
                             //.Replace(" (курсовая работа)", "")
                             //.Replace(" (курстық жұмыс)", "");
 
@@ -423,7 +423,7 @@ namespace ImportStudentV2
             int startRow = int.Parse(ViewAnswer("Введите номер строки студентов:"));
             int nameColumn = int.Parse(ViewAnswer("Введите номер колонки фамилии студентов"));
 
-            for (int col = 1; col <= 100; col++)
+            for (int col = 1; col <= 115; col++)
             {
                 string title = document.Read(rowTitleRU, col);
                 if (string.IsNullOrEmpty(title))
