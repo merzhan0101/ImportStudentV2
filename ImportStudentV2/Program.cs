@@ -45,7 +45,7 @@ namespace ImportStudentV2
             Log("Выберите действие:");
 
 
-            int num = ViewSelect("Темы","Ведомость","Дипломы","Рег номера","Удалить ведомость");
+            int num = ViewSelect("Темы","Ведомость","Дипломы","Рег номера","Удалить ведомость", "Удалить  все");
 
             switch(num+1)
             {
@@ -68,6 +68,33 @@ namespace ImportStudentV2
                         .ToList();
 
                     Repository.Grades.RemoveRange(grades);
+
+                    Repository.SaveChanges();
+
+                    break;
+                case 6:
+                    var grades1 = Repository.Grades
+                        .Include(p => p.Student)
+                        .Where(p => p.Student.GroupId == GroupId)
+                        .ToList();
+
+
+                    var subjects1 = Repository.Subjects
+                        .Where(p => p.GroupId == GroupId)
+                        .ToList();
+
+                    var subjects = Repository.Subjects
+                        .Where(p => p.GroupId == GroupId)
+                        .Select(s => s.TitleId)
+                        .ToList();
+
+                    var localizers = Repository.Localizers
+                    .Where(l => subjects.Contains(l.Id))
+                    .ToList();
+
+                    Repository.Grades.RemoveRange(grades1);
+                    Repository.Subjects.RemoveRange(subjects1);
+                    Repository.Localizers.RemoveRange(localizers);
 
                     Repository.SaveChanges();
 
@@ -435,10 +462,11 @@ namespace ImportStudentV2
 
                 if (subject == null)
                 {
-                    Log($"Желаете создать предмет {title}?");
-                    var key = Console.ReadKey();
-                    Log("Y - чтобы создать; Escape - чтобы закончить цикл");
-                    if (key.Key == ConsoleKey.Y)
+                    //Log($"Создать предмет {title}?");
+                    //var key = Console.ReadKey();
+                    //Log("Y - чтобы создать; Escape - чтобы закончить цикл");
+                    //if (key.Key == ConsoleKey.Y)
+                    if(true)
                     {
                         subject = new SubjectModel()
                         {
@@ -451,15 +479,16 @@ namespace ImportStudentV2
                             Hours = hours
                         };
                         Repository.SaveChanges();
+                        Log($"Создан предмет {title}");
                     }
-                    else if (key.Key == ConsoleKey.Escape)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        continue;
-                    }
+                    //else if (key.Key == ConsoleKey.Escape)
+                    //{
+                    //    break;
+                    //}
+                    //else
+                    //{
+                    //    continue;
+                    //}
                 }
 
                 //if (subject.Title.Title_RU == "Алгоритмизация и программирование")
