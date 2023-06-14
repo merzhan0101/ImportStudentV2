@@ -18,7 +18,7 @@ namespace GeneratorDiplom.Models
         public int GroupId { get; set; }
 
         public string NumApplication { get; set; }
-        public DateTime? DateApplication { get; set; }
+        public int? DateApplication { get; set; }
 
         public List<GradeModel> Grades { get; set; }
 

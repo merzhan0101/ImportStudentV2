@@ -129,7 +129,7 @@ namespace ImportStudentV2
                 }
             }
             Repository.SaveChanges();
-            
+
         }
 
         static void ImportDiplom()
@@ -142,7 +142,6 @@ namespace ImportStudentV2
             //int rowDiplomRU = 26;
             //int rowDiplomKZ = int.Parse(ViewAnswer("Номер строки с темой диплома (казахский)"));
             //int rowDiplomKZ = 28;
-            int ccc = 0;
             foreach (var student in Students)
             {
                 //if (student.TopicId == null)
@@ -155,14 +154,20 @@ namespace ImportStudentV2
                 //    Log($"{student.Initials.Title_RU} нету номера диплома");
                 //    continue;
                 //}
+
+                //byte[] bytes = System.IO.File.ReadAllBytes(path);
+                //using MemoryStream stream = new MemoryStream(bytes);
+                //ExcelOldX excel = new ExcelOldX(stream);
+                Draw(document, student);
+
                 document.Write(5, 3, student.NumApplication, 1);
                 document.Write(5, 3, student.NumApplication, 3);
 
                 document.Write(7, 2, student.Initials.Title_RU, 1);
                 document.Write(7, 2, student.Initials.Title_KZ, 3);
 
-                document.Write(9, 3, student.Group.StartStudies, 1);
-                document.Write(9, 3, student.Group.StartStudies, 3);
+                document.Write(9, 3, (int)student.DateApplication, 1);
+                document.Write(9, 3, (int)student.DateApplication, 3);
 
                 document.Write(9, 6, student.Group.EndStudies, 1);
                 document.Write(9, 6, student.Group.EndStudies, 3);
@@ -238,9 +243,9 @@ namespace ImportStudentV2
                         for (int row = 1; row <= 53; row++)
                         {
                             string title_ru = document.Read(row, offsetTitle, page);
-                                //.Replace(" (факультатив)", "")
-                                //.Replace(" (курстық жоба)", "")
-                                //.Replace(" (курсовой проект)", "");
+                            //.Replace(" (факультатив)", "")
+                            //.Replace(" (курстық жоба)", "")
+                            //.Replace(" (курсовой проект)", "");
                             //.Replace(" (курсовая работа)", "")
                             //.Replace(" (курстық жұмыс)", "");
 
@@ -287,15 +292,88 @@ namespace ImportStudentV2
                         }
                     }
                 }
-                ccc++;
 
                 document.Save(Path.Combine("Группы", $"{student.Initials.Title_RU}.xls"));
                 Log($"Документ '{student.Initials.Title_RU}'.xls сгенерирован");
-                if(ccc > 4)
-                //одного студента
                 break;
             }
         }
+
+        static public void Draw(ExcelOldX excel, StudentModel student)
+        {
+            var initialRu = student.Initials_Dat.Title_RU.Split(" ");
+            var initialKz = student.Initials_Dat.Title_KZ.Split(" ");
+
+            excel.Write(2, 49, initialRu[0], 6);
+            excel.Write(2, 12, initialKz[0], 5);
+
+            if (initialRu.Length == 3)
+            {
+                excel.Write(3, 38, $"{initialRu[1]} {initialRu[2]}", 6);
+                excel.Write(3, 7, $"{initialKz[1]} {initialKz[2]}", 5);
+            }
+            else
+            {
+                excel.Write(3, 38, initialRu[1], 6);
+                excel.Write(3, 7, initialKz[1], 5);
+            }
+
+            excel.Write(15, 7, student.Group.Title.Title_KZ, 5);
+            excel.Write(15, 7, student.Group.Title.Title_RU, 6);
+
+            excel.Write(4, 10, (int)student.DateApplication, 5);
+            excel.Write(4, 46, (int)student.DateApplication, 6);
+
+            excel.Write(6, 9, student.Group.EndStudies, 5);
+            excel.Write(8, 39, student.Group.EndStudies, 6);
+
+            //excel.Write(14, 41, student.Group.StartStudies, 6); // какая дата и где кз
+
+            string title_ru = "Высший колледж НАО \"Торайгыров университет\"";
+            string title_kz = "\"Торайгыров университеті\"";
+            string title_kz_second = "КЕАҚ жоғары колледжінің";
+
+            excel.Write(6, 16, title_kz, 5);
+            excel.Write(7, 6, title_kz_second, 5);
+            excel.Write(9, 38, title_ru, 6);
+
+            string groupTitleRu = student.Group.Title.Title_RU;
+            string groupTitleKz = student.Group.Title.Title_KZ;
+
+            string[] groupTitleRuAr = groupTitleRu.Split(" ");
+            string[] groupTitleKzAr = groupTitleKz.Split(" ");
+
+            string titleRu1 = groupTitleRuAr[0] + ' ' + groupTitleRuAr[1];
+            string titleRu2 = null;
+            for (int i = 2; i < groupTitleRuAr.Length; i++)
+            {
+                titleRu2 += groupTitleRuAr[i] + ' ';
+            }
+
+            string titleKz1 = groupTitleKzAr[0] + ' ' + groupTitleKzAr[1];
+            string titleKz2 = null;
+            for (int i = 2; i < groupTitleKzAr.Length; i++)
+            {
+                titleKz2 += groupTitleKzAr[i] + ' ';
+            }
+
+            excel.Write(10, 50, titleRu1, 6);
+            excel.Write(11, 38, titleRu2, 6);
+
+            excel.Write(9, 11, titleKz1, 5);
+            excel.Write(10, 6, titleKz2, 5);
+
+
+            excel.Write(15, 7, student.Group.Qualification.Title_RU, 5);
+            excel.Write(16, 38, student.Group.Qualification.Title_KZ, 6);
+
+            excel.Write(24, 13, student.NumApplication, 5);
+            excel.Write(24, 51, student.NumApplication, 6);
+
+
+        }
+
+
         static Score GetScore(string score_text,bool isRus)
         {
             int.TryParse(score_text,out int score);

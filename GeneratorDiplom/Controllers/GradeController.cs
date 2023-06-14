@@ -181,7 +181,7 @@ namespace GeneratorDiplom.Controllers
             excel.Write(2, 49, initialRu[0], 6);
             excel.Write(2, 12, initialKz[0], 5);
 
-            excel.Write(4, 40, student.Group.StartStudies, 6);
+            //excel.Write(4, 46, student.Group.StartStudies, 6);
 
             if (initialRu.Length == 3)
             {
@@ -197,13 +197,13 @@ namespace GeneratorDiplom.Controllers
             excel.Write(15, 7, student.Group.Title.Title_KZ, 5);
             excel.Write(15, 7, student.Group.Title.Title_RU, 6);
 
-            excel.Write(4, 13, student.Group.StartStudies, 5);
-            excel.Write(14, 46, student.Group.StartStudies, 6);
+            excel.Write(4, 10, student.Group.StartStudies, 5);
+            excel.Write(4, 46, student.Group.StartStudies, 6);
 
-            excel.Write(8, 39, student.Group.EndStudies, 5);
-            excel.Write(8, 46, student.Group.EndStudies, 6);
+            excel.Write(6, 9, student.Group.EndStudies, 5);
+            excel.Write(8, 39, student.Group.EndStudies, 6);
 
-            excel.Write(14, 41, student.Group.StartStudies, 6);
+            excel.Write(14, 41, student.Group.StartStudies, 6); // какая дата и где кз
 
             excel.Write(7, 3, student.Initials_Dat.Title_RU, 1);
             excel.Write(7, 3, student.Initials_Dat.Title_KZ, 3);
@@ -213,12 +213,14 @@ namespace GeneratorDiplom.Controllers
             excel.Write(9, 6, student.Group.EndStudies, 1);
             excel.Write(9, 6, student.Group.EndStudies, 3);
 
-            string title_ru = "ПГУ";
-            string title_kz = "Пгу";
+            string title_ru = "Высший колледж НАО \"Торайгыров университет\"";
+            string title_kz = "\"Торайгыров университеті\"";
+            string title_kz_second = "КЕАҚ жоғары колледжінің";
 
             excel.Write(10, 3, title_ru, 1);
             excel.Write(10, 3, title_kz, 3);
-            excel.Write(7, 6, title_kz, 5);
+            excel.Write(6, 16, title_kz, 5);
+            excel.Write(7, 6, title_kz_second, 5);
             excel.Write(9, 38, title_ru, 6);
 
             excel.Write(12, 2, $"{student.Group.Code} \"{student.Group.Title.Title_RU}\"", 1);
