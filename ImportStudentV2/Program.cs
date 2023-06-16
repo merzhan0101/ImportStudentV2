@@ -137,13 +137,14 @@ namespace ImportStudentV2
             List<int> use_ids = new List<int>();
             string path = ViewAnswer("Введите путь до файла с дипломом:");
             //string path = @"D:\Diploma\ImportStudentV2\bin\Debug\netcoreapp3.1\123\2023\college\ЭСЖ419\template.xls";
-            var document = GetExcelOld(path);
+            //var document = GetExcelOld(path);
             //int rowDiplomRU = int.Parse(ViewAnswer("Номер строки с темой диплома (русский)"));
             //int rowDiplomRU = 26;
             //int rowDiplomKZ = int.Parse(ViewAnswer("Номер строки с темой диплома (казахский)"));
             //int rowDiplomKZ = 28;
             foreach (var student in Students)
             {
+                var document = GetExcelOld(path);
                 //if (student.TopicId == null)
                 //{
                 //    Log($"{student.Initials.Title_RU} нету темы дипломной работы");
@@ -158,7 +159,13 @@ namespace ImportStudentV2
                 //byte[] bytes = System.IO.File.ReadAllBytes(path);
                 //using MemoryStream stream = new MemoryStream(bytes);
                 //ExcelOldX excel = new ExcelOldX(stream);
-                Draw(document, student);
+
+
+
+                //для диплома нужно
+                //Draw(document, student);
+
+
 
                 document.Write(5, 3, student.NumApplication, 1);
                 document.Write(5, 3, student.NumApplication, 3);
@@ -266,7 +273,7 @@ namespace ImportStudentV2
 
                             var grade = student.Grades.FirstOrDefault(p => p.SubjectId == subject.Id);
 
-                            if (grade == null || string.IsNullOrEmpty(grade.Score))
+                            if (grade == null || string.IsNullOrEmpty(grade.Score) || grade.Score == null)
                             {
                                 Log($"[{student.Initials.Get}] Нету оценки: '{title_ru}'");
                                 continue;
@@ -295,7 +302,7 @@ namespace ImportStudentV2
 
                 document.Save(Path.Combine("Группы", $"{student.Initials.Title_RU}.xls"));
                 Log($"Документ '{student.Initials.Title_RU}'.xls сгенерирован");
-                break;
+                //break;
             }
         }
 
@@ -578,11 +585,11 @@ namespace ImportStudentV2
                 //}
                 for (int row = startRow; row < startRow + Students.Count; row++)
                 {
-                    string surname = SuperSplit(document.Read(row, nameColumn))[0];
+                    string surname = document.Read(row, nameColumn);
                     StudentModel student = Students.FirstOrDefault(p=>p.Initials.Title_RU.StartsWith(surname));
                     if (student == null)
                     {
-                        Log($"{surname} не найден в базе данных");
+                        Log($"Студент {surname} не найден в базе данных");
                         continue;
                     }
                     GradeModel grade = student.Grades.FirstOrDefault(p => p.SubjectId == subject.Id);
