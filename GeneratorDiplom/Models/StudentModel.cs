@@ -24,5 +24,8 @@ namespace GeneratorDiplom.Models
 
         public StudentModel() =>
             Grades = new List<GradeModel>();
+
+
+        public string nameBefore { get; set; }
     }
 }

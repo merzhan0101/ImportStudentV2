@@ -325,14 +325,53 @@ namespace ImportStudentV2
                 excel.Write(3, 7, initialKz[1], 5);
             }
 
+
             excel.Write(15, 7, student.Group.Title.Title_KZ, 5);
             excel.Write(15, 7, student.Group.Title.Title_RU, 6);
 
+            //постулпение год
             excel.Write(4, 10, (int)student.DateApplication, 5);
             excel.Write(4, 46, (int)student.DateApplication, 6);
 
+            //окончание год
             excel.Write(6, 9, student.Group.EndStudies, 5);
             excel.Write(8, 39, student.Group.EndStudies, 6);
+
+
+            string nameBeforeRu = student.nameBefore;
+            string nameBeforeKz_first = "\"Торайгыров университеті\"";
+            string nameBeforeKz_second = "КЕАҚ жоғары колледжінің";
+            if(nameBeforeRu == "Высший колледж Торайгыров Университет")
+            {
+                nameBeforeKz_first = "Торайғыров Университетінің";
+                nameBeforeKz_second = "Жоғары колледжі";
+            }
+            if (nameBeforeRu == "Колледж ПГУ имени с.Торайгырова")
+            {
+                nameBeforeKz_first = "С.Торайғыров атындағы";
+                nameBeforeKz_second = "ПМУ Колледжі";
+            }
+            if (nameBeforeRu == "КГП на ПХВ Павлодарский технологический колледж")
+            {
+                nameBeforeKz_first = "Павлодар технологиялық";
+                nameBeforeKz_second = "колледжі ШЖҚ КМК";
+            }
+            //название колледжа при постулпении кз
+            excel.Write(4, 14, nameBeforeKz_first, 5);
+            excel.Write(5, 6, nameBeforeKz_second, 5);
+
+            string[] nameBeforeRuAr = nameBeforeRu.Split(" ");
+
+            string nameBeforeRu1 = nameBeforeRuAr[0] + ' ' + nameBeforeRuAr[1];
+            string nameBeforeRu2 = null;
+            for (int i = 2; i < nameBeforeRuAr.Length; i++)
+            {
+                nameBeforeRu2 += nameBeforeRuAr[i] + ' ';
+            }
+            //название колледжа при постулпении ру
+            excel.Write(6, 38, nameBeforeRu1, 6); 
+            excel.Write(7, 38, nameBeforeRu2, 6); 
+
 
             //excel.Write(14, 41, student.Group.StartStudies, 6); // какая дата и где кз
 
@@ -340,6 +379,7 @@ namespace ImportStudentV2
             string title_kz = "\"Торайгыров университеті\"";
             string title_kz_second = "КЕАҚ жоғары колледжінің";
 
+            //название колледжа сейчас
             excel.Write(6, 16, title_kz, 5);
             excel.Write(7, 6, title_kz_second, 5);
             excel.Write(9, 38, title_ru, 6);
