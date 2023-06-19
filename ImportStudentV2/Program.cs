@@ -163,7 +163,7 @@ namespace ImportStudentV2
 
 
                 //для диплома нужно
-                //Draw(document, student);
+                Draw(document, student);
 
 
 

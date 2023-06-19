@@ -131,6 +131,9 @@ namespace GeneratorDiplom.Controllers
         {
             try
             {
+                
+
+                
                 StudentModel student = await _context.Students
                     .AsNoTracking()
                     .Include(p=>p.Initials)
