@@ -115,7 +115,7 @@ namespace ImportStudentV2
             {
                 try
                 {
-                    string surname = SuperSplit(document.Read(i, rowSurname))[0];
+                    string surname = document.Read(i, rowSurname);
                     var student = Students
                         .First(p => p.Initials.Title_RU.StartsWith(surname));
                     student.NumApplication = document.Read(i, rowNum);
@@ -125,7 +125,7 @@ namespace ImportStudentV2
                 catch(Exception err)
                 {
                     Log(err.Message);
-                    break;
+                    //break;
                 }
             }
             Repository.SaveChanges();
@@ -341,7 +341,7 @@ namespace ImportStudentV2
             string nameBeforeRu = student.nameBefore;
             string nameBeforeKz_first = "\"Торайгыров университеті\"";
             string nameBeforeKz_second = "КЕАҚ жоғары колледжінің";
-            if(nameBeforeRu == "Высший колледж Торайгыров Университет")
+            if (nameBeforeRu == "Высший колледж Торайгыров Университет")
             {
                 nameBeforeKz_first = "Торайғыров Университетінің";
                 nameBeforeKz_second = "Жоғары колледжі";
@@ -369,8 +369,8 @@ namespace ImportStudentV2
                 nameBeforeRu2 += nameBeforeRuAr[i] + ' ';
             }
             //название колледжа при постулпении ру
-            excel.Write(6, 38, nameBeforeRu1, 6); 
-            excel.Write(7, 38, nameBeforeRu2, 6); 
+            excel.Write(6, 38, nameBeforeRu1, 6);
+            excel.Write(7, 38, nameBeforeRu2, 6);
 
 
             //excel.Write(14, 41, student.Group.StartStudies, 6); // какая дата и где кз
@@ -404,6 +404,7 @@ namespace ImportStudentV2
                 titleKz2 += groupTitleKzAr[i] + ' ';
             }
 
+            //название группы
             excel.Write(10, 50, titleRu1, 6);
             excel.Write(11, 38, titleRu2, 6);
 
@@ -411,11 +412,30 @@ namespace ImportStudentV2
             excel.Write(10, 6, titleKz2, 5);
 
 
+            //квалификация название
             excel.Write(15, 7, student.Group.Qualification.Title_RU, 5);
             excel.Write(16, 38, student.Group.Qualification.Title_KZ, 6);
 
+            //рег номера
             excel.Write(24, 13, student.NumApplication, 5);
             excel.Write(24, 51, student.NumApplication, 6);
+
+
+            string commissionDate = student.commissionDate;
+            string[] comissionDateAr = commissionDate.Split(" ");
+            string day = comissionDateAr[0];
+            string month = comissionDateAr[1];
+            string year = comissionDateAr[2];
+
+
+            //дата решения коммисии
+            excel.Write(14, 10, day, 5);
+            excel.Write(14, 13, month, 5);
+            excel.Write(13, 25, year, 5);
+
+            excel.Write(13, 57, day, 6);
+            excel.Write(14, 38, month, 6);
+            excel.Write(14, 41, year, 6);
 
 
         }

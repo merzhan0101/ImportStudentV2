@@ -27,5 +27,9 @@ namespace GeneratorDiplom.Models
 
 
         public string nameBefore { get; set; }
+
+        public string commissionDate { get; set; }
+
+        public bool isDiplom { get; set; }
     }
 }
