@@ -260,11 +260,12 @@ namespace ImportStudentV2
                                 continue;
 
                             int.TryParse(document.Read(row, offsetTitle + 1, page), out int hours);
+                            int.TryParse(document.Read(row, offsetTitle - 1, page), out int zindex);
 
                             //if (hours == 0)
                             //    continue;
 
-                            var subject = GetSubject(title_ru, hours);
+                            var subject = GetSubject(title_ru, hours, zindex);
                             if (subject == null)
                             {
                                 Log($"Предмет '{title_ru}' не найден");
@@ -595,6 +596,8 @@ namespace ImportStudentV2
             int startRow = int.Parse(ViewAnswer("Введите номер строки студентов:"));
             int nameColumn = int.Parse(ViewAnswer("Введите номер колонки фамилии студентов"));
 
+            int ZIndexRow = int.Parse(ViewAnswer("Укажите номер строки с порядковыми номерами"));
+
             for (int col = 1; col <= 115; col++)
             {
                 string title = document.Read(rowTitleRU, col);
@@ -602,8 +605,9 @@ namespace ImportStudentV2
                     continue;
 
                 int.TryParse(document.Read(rowHours, col), out int hours);
+                int.TryParse(document.Read(ZIndexRow, col), out int zindex);
 
-                SubjectModel subject = GetSubject(title, hours);
+                SubjectModel subject = GetSubject(title, hours, zindex);
 
                 if (subject == null)
                 {
@@ -621,7 +625,8 @@ namespace ImportStudentV2
                                 Title_RU = title,
                                 Title_KZ = document.Read(rowTitleKZ, col)
                             },
-                            Hours = hours
+                            Hours = hours,
+                            ZIndex = zindex
                         };
                         Repository.SaveChanges();
                         Log($"Создан предмет {title}");
@@ -678,10 +683,11 @@ namespace ImportStudentV2
             .Where(p => (p.Title.Title_RU == title || p.Title.Title_KZ == title) && p.GroupId == GroupId && p.Hours == hour)
             .ToList();
 
-        static SubjectModel GetSubject(string title,int hour = 0) =>
+        static SubjectModel GetSubject(string title, int hour = 0, int zindex = 0) =>
             Repository.Subjects
             .Include(p => p.Title)
-            .FirstOrDefault(p => (p.Title.Title_RU == title || p.Title.Title_KZ == title) && p.GroupId == GroupId && p.Hours == hour);
+            //.FirstOrDefault(p => (p.Title.Title_RU.Contains(title) || p.Title.Title_KZ.Contains(title)) && p.GroupId == GroupId && p.Hours == hour);
+            .FirstOrDefault(p => (p.Title.Title_RU == title || p.Title.Title_KZ == title) && p.GroupId == GroupId && p.Hours == hour && p.ZIndex == zindex);
 
         static ExcelOldX GetExcelOld(string path)
         {
