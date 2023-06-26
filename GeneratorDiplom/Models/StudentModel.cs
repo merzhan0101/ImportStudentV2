@@ -31,5 +31,7 @@ namespace GeneratorDiplom.Models
         public string commissionDate { get; set; }
 
         public bool isDiplom { get; set; }
+
+        public int diplomNum { get; set; }
     }
 }

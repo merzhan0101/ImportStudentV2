@@ -45,7 +45,7 @@ namespace ImportStudentV2
             Log("Выберите действие:");
 
 
-            int num = ViewSelect("Темы","Ведомость","Дипломы","Рег номера","Удалить ведомость", "Удалить  все");
+            int num = ViewSelect("Темы","Ведомость","Дипломы","Рег номера","Удалить ведомость", "Удалить  все", "Номера дипломов");
 
             switch(num+1)
             {
@@ -99,10 +99,17 @@ namespace ImportStudentV2
                     Repository.SaveChanges();
 
                     break;
+
+                case 7:
+                    ImportDiplomNum();
+                    break;
+
+
             }
 
             Repository.Dispose();
         }
+
 
         static void ImportRegNum()
         {
@@ -111,7 +118,7 @@ namespace ImportStudentV2
             int rowNum = int.Parse(ViewAnswer("Колонка с номерами"));
             var document = GetExcel(path);
 
-            for (int i = 1; i <= Students.Where(p=>p.GroupId == GroupId).Count(); i++)
+            for (int i = 1; i <= Students.Where(p => p.GroupId == GroupId).Count(); i++)
             {
                 try
                 {
@@ -122,7 +129,34 @@ namespace ImportStudentV2
 
                     Log($"{student.Initials.Get} {student.NumApplication}");
                 }
-                catch(Exception err)
+                catch (Exception err)
+                {
+                    Log(err.Message);
+                    //break;
+                }
+            }
+            Repository.SaveChanges();
+
+        }
+        static void ImportDiplomNum()
+        {
+            string path = ViewAnswer("Введите путь до файла с номерами диплома");
+            int rowSurname = int.Parse(ViewAnswer("Колонка с фамилиями"));
+            int rowNum = int.Parse(ViewAnswer("Колонка с номерами"));
+            var document = GetExcel(path);
+
+            for (int i = 1; i <= Students.Where(p => p.GroupId == GroupId).Count()+5; i++)
+            {
+                try
+                {
+                    string surname = document.Read(i, rowSurname);
+                    var student = Students
+                        .First(p => p.Initials.Title_RU.StartsWith(surname));
+                    student.diplomNum = Int32.Parse(document.Read(i, rowNum));
+
+                    Log($"{student.Initials.Get} {student.diplomNum}");
+                }
+                catch (Exception err)
                 {
                     Log(err.Message);
                     //break;
@@ -138,23 +172,31 @@ namespace ImportStudentV2
             string path = ViewAnswer("Введите путь до файла с дипломом:");
             //string path = @"D:\Diploma\ImportStudentV2\bin\Debug\netcoreapp3.1\123\2023\college\ЭСЖ419\template.xls";
             //var document = GetExcelOld(path);
-            //int rowDiplomRU = int.Parse(ViewAnswer("Номер строки с темой диплома (русский)"));
-            //int rowDiplomRU = 26;
-            //int rowDiplomKZ = int.Parse(ViewAnswer("Номер строки с темой диплома (казахский)"));
-            //int rowDiplomKZ = 28;
+            int rowDiplomRU = 0;
+            int rowDiplomKZ = 0;
+            if (GroupId != 8 && GroupId != 12 && GroupId !=9 && GroupId != 10)
+            {
+                rowDiplomRU = int.Parse(ViewAnswer("Номер строки с темой диплома (русский)"));
+                rowDiplomKZ = int.Parse(ViewAnswer("Номер строки с темой диплома (казахский)"));
+            }
+
             foreach (var student in Students)
             {
                 var document = GetExcelOld(path);
-                //if (student.TopicId == null)
-                //{
-                //    Log($"{student.Initials.Title_RU} нету темы дипломной работы");
-                //    continue;
-                //}
-                //if (string.IsNullOrEmpty(student.NumApplication))
-                //{
-                //    Log($"{student.Initials.Title_RU} нету номера диплома");
-                //    continue;
-                //}
+                if (GroupId != 8 && GroupId != 12 && GroupId != 9 && GroupId != 10)
+                {
+                    if (student.TopicId == null)
+                    {
+                        Log($"{student.Initials.Title_RU} нету темы дипломной работы");
+                        continue;
+                    }
+                }
+                    
+                if (string.IsNullOrEmpty(student.NumApplication))
+                {
+                    Log($"{student.Initials.Title_RU} нету номера диплома");
+                    continue;
+                }
 
                 //byte[] bytes = System.IO.File.ReadAllBytes(path);
                 //using MemoryStream stream = new MemoryStream(bytes);
@@ -179,8 +221,8 @@ namespace ImportStudentV2
                 document.Write(9, 6, student.Group.EndStudies, 1);
                 document.Write(9, 6, student.Group.EndStudies, 3);
 
-                string nameColegeRus = "Высший колледж НАО \"Торайгыров университет\"";
-                string nameColegeKaz = "\"Торайғыров университеті\" КЕАҚ жоғары колледжі";
+                string nameColegeRus = "Высшем колледже НАО \"Торайгыров университет\"";
+                string nameColegeKaz = "\"Торайғыров университеті\" КЕАҚ жоғары колледжінде";
                 document.Write(10, 2, nameColegeRus, 1);
                 document.Write(10, 2, nameColegeKaz, 3);
 
@@ -191,33 +233,36 @@ namespace ImportStudentV2
                 document.Write(18, 3, student.Group.Qualification.Title_KZ, 3);
 
 
+                if (GroupId != 8 && GroupId != 12 && GroupId != 9 && GroupId != 10)
+                {
+                    document.Write(rowDiplomRU, 10, $"Защита дипломного проекта: {student.Topic.Title_RU}", 2);
+                    document.Write(rowDiplomKZ, 10, $"Диплом жобасын қорғау: {student.Topic.Title_KZ}", 4);
 
-                //document.Write(rowDiplomRU, 3, $"Защита дипломного проекта: {student.Topic.Title_RU}", 1);
-                //document.Write(rowDiplomKZ, 3, $"Диплом жобасын қорғау: {student.Topic.Title_KZ}", 3);
+                    var defend = GetSubject("Дипломный проект", 136);
 
-                //var defend = GetSubject("Дипломный проект");
-
-                //if (defend != null)
-                //{
-                //    var grad = student.Grades.FirstOrDefault(p => p.Subject == defend);
-                //    if (grad != null)
-                //    {
-                //        var diplom_score_ru = GetScore(grad.Score, true);
-                //        var diplom_score_kz = GetScore(grad.Score, false);
-                //        document.Write(rowDiplomRU, 7, diplom_score_ru.Lang, 1);
-                //        //document.Write(rowDiplomRU, 14, diplom_score_ru.Ball, 2);
-                //        //document.Write(rowDiplomRU, 13, diplom_score_ru.Letter, 2);
-                //        //document.Write(rowDiplomRU, 12, diplom_score_ru.Kda, 2);
-                //        //document.Write(rowDiplomKZ, 12, diplom_score_ru.Kda, 4);
-                //        //document.Write(rowDiplomKZ, 13, diplom_score_ru.Letter, 4);
-                //        //document.Write(rowDiplomKZ, 14, diplom_score_ru.Ball, 4);
-                //        document.Write(rowDiplomKZ, 7, diplom_score_kz.Lang, 3);
-                //    }
-                //}
-                //else
-                //{
-                //    Log("Нету Оценок за защиту");
-                //}
+                    if (defend != null)
+                    {
+                        var grad = student.Grades.FirstOrDefault(p => p.Subject == defend);
+                        if (grad != null)
+                        {
+                            var diplom_score_ru = GetScore(grad.Score, true);
+                            var diplom_score_kz = GetScore(grad.Score, false);
+                            document.Write(rowDiplomRU, 15, diplom_score_ru.Lang, 2);
+                            document.Write(rowDiplomRU, 14, diplom_score_ru.Ball, 2);
+                            document.Write(rowDiplomRU, 13, diplom_score_ru.Letter, 2);
+                            document.Write(rowDiplomRU, 12, diplom_score_ru.Kda, 2);
+                            document.Write(rowDiplomKZ, 12, diplom_score_ru.Kda, 4);
+                            document.Write(rowDiplomKZ, 13, diplom_score_ru.Letter, 4);
+                            document.Write(rowDiplomKZ, 14, diplom_score_ru.Ball, 4);
+                            document.Write(rowDiplomKZ, 15, diplom_score_kz.Lang, 4);
+                        }
+                    }
+                    else
+                    {
+                        Log("Нету Оценок за защиту");
+                    }
+                }
+                
 
 
 
@@ -331,7 +376,7 @@ namespace ImportStudentV2
             excel.Write(15, 7, student.Group.Title.Title_RU, 6);
 
             //постулпение год
-            excel.Write(4, 10, (int)student.DateApplication, 5);
+            excel.Write(4, 8, (int)student.DateApplication, 5);
             excel.Write(4, 46, (int)student.DateApplication, 6);
 
             //окончание год
@@ -340,22 +385,17 @@ namespace ImportStudentV2
 
 
             string nameBeforeRu = student.nameBefore;
-            string nameBeforeKz_first = "\"Торайгыров университеті\"";
-            string nameBeforeKz_second = "КЕАҚ жоғары колледжінің";
-            if (nameBeforeRu == "Высший колледж Торайгыров Университет")
+            string nameBeforeKz_first = "\"Торайғыров университеті\" ";
+            string nameBeforeKz_second = "КЕАҚ жоғары колледжіне";
+            if (nameBeforeRu == "Колледж Павлодарского государственного университета имени С.Торайгырова")
             {
-                nameBeforeKz_first = "Торайғыров Университетінің";
-                nameBeforeKz_second = "Жоғары колледжі";
+                nameBeforeKz_first = "С.Торайғыров атындағы Павлодар";
+                nameBeforeKz_second = "мемлекеттік университетінің колледжіне";
             }
-            if (nameBeforeRu == "Колледж ПГУ имени с.Торайгырова")
+            if (nameBeforeRu == "КГП на ПХВ \"Павлодарский технологический колледж\"")
             {
-                nameBeforeKz_first = "С.Торайғыров атындағы";
-                nameBeforeKz_second = "ПМУ Колледжі";
-            }
-            if (nameBeforeRu == "КГП на ПХВ Павлодарский технологический колледж")
-            {
-                nameBeforeKz_first = "Павлодар технологиялық";
-                nameBeforeKz_second = "колледжі ШЖҚ КМК";
+                nameBeforeKz_first = "\"Павлодар технологиялық";
+                nameBeforeKz_second = "колледжіне\" ШЖҚ КМК";
             }
             //название колледжа при постулпении кз
             excel.Write(4, 14, nameBeforeKz_first, 5);
@@ -376,7 +416,7 @@ namespace ImportStudentV2
 
             //excel.Write(14, 41, student.Group.StartStudies, 6); // какая дата и где кз
 
-            string title_ru = "Высший колледж НАО \"Торайгыров университет\"";
+            string title_ru = "Высшего колледжа НАО \"Торайгыров университет\"";
             string title_kz = "\"Торайгыров университеті\"";
             string title_kz_second = "КЕАҚ жоғары колледжінің";
 
@@ -425,8 +465,8 @@ namespace ImportStudentV2
             string commissionDate = student.commissionDate;
             string[] comissionDateAr = commissionDate.Split(" ");
             string day = comissionDateAr[0];
-            string month = comissionDateAr[1];
-            string year = comissionDateAr[2];
+            string month = "маусым";
+            string year = "2023";
 
 
             //дата решения коммисии
@@ -553,18 +593,18 @@ namespace ImportStudentV2
 
         static void ImportTopic()
         {
-            string path = ViewAnswer("Укажите путь до файла с дипломными темами:");
+            string path = "D:\\Diploma\\ImportStudentV2\\bin\\Debug\\netcoreapp3.1\\123\\2023\\college\\Общие\\themes.xlsx";//ViewAnswer("Укажите путь до файла с дипломными темами:");
             var document = GetExcel(path);
-            int cellTitle = int.Parse(ViewAnswer("Укажите номер колонки с фамилиями"));
-            int cellNameRU = int.Parse(ViewAnswer("Укажите номер колонки с названиями дипломных проектов (на русском)"));
-            int cellNameKZ = int.Parse(ViewAnswer("Укажите номер колонки с названиями дипломных проектов (на казахском)"));
+            int cellTitle = 1; // int.Parse(ViewAnswer("Укажите номер колонки с фамилиями"));
+            int cellNameRU = 2; // int.Parse(ViewAnswer("Укажите номер колонки с названиями дипломных проектов (на русском)"));
+            int cellNameKZ = 3; // int.Parse(ViewAnswer("Укажите номер колонки с названиями дипломных проектов (на казахском)"));
 
-            for (int row = 1; row <= Students.Count; row++)
+            for (int row = 1; row <= 190; row++)
             {
                 string data = document.Read(row, cellTitle);
                 if (string.IsNullOrEmpty(data))
                     continue;
-                string surname = SuperSplit(data)[0];
+                string surname = data;
                 var student = Students.FirstOrDefault(p => p.Initials.Title_RU.StartsWith(surname));
                 if(student == null)
                 {
