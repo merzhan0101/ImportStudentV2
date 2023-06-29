@@ -32,6 +32,8 @@ namespace GeneratorDiplom.Models
 
         public bool isDiplom { get; set; }
 
-        public int diplomNum { get; set; }
+        public int? diplomNum { get; set; }
+
+        public int? regnumSvid { get; set; }
     }
 }

@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using GeneratorDiplom;
 using GeneratorDiplom.Models;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using NPOI.HPSF;
+using NPOI.SS.Formula.Functions;
 using OfficeLib;
+using QRCoder;
+using static System.Net.Mime.MediaTypeNames;
+using System.Drawing.Imaging;
 
 namespace ImportStudentV2
 {
@@ -104,12 +111,53 @@ namespace ImportStudentV2
                     ImportDiplomNum();
                     break;
 
+                case 8:
+                    GenerateSvid();
+                    break;
+
 
             }
 
             Repository.Dispose();
         }
 
+
+        static void ImportQRCodes()
+        {
+            string path = ViewAnswer("Введите путь до файла со списком QR");
+            string path2 = ViewAnswer("Введите путь для сохранения");
+            var document = GetExcel(path);
+
+            for (int i = 1; i <= Students.Where(p => p.GroupId == GroupId).Count() +5; i++)
+            {
+                try
+                {
+                    string surname = document.Read(i, 1);
+                    var student = Students
+                        .First(p => p.Initials.Title_RU.StartsWith(surname));
+
+                    string link = "https://github.com/codebude/QRCoder/wiki/Advanced-usage---QR-Code-raw-data-export";  // document.Read(i, 2);
+                    QRCodeGenerator qrGenerator = new QRCodeGenerator();
+                    QRCodeData qrCodeData = qrGenerator.CreateQrCode(link, QRCodeGenerator.ECCLevel.Q);
+                    QRCode qrCode = new QRCode(qrCodeData);
+                    Bitmap qrCodeImage = qrCode.GetGraphic(20);
+                    qrCodeImage.Save(Path.Combine(path2, $"{student.Initials.Title_RU}"), System.Drawing.Imaging.ImageFormat.Png);
+                    Log($"Документ '{student.Initials.Title_RU}'.xls сгенерирован");
+
+
+
+                    //student.NumApplication = document.Read(i, 2);
+
+                    //Log($"{student.Initials.Get} {student.NumApplication}");
+                }
+                catch (Exception err)
+                {
+                    Log(err.Message);
+                    //break;
+                }
+            }
+            Repository.SaveChanges();
+        }
 
         static void ImportRegNum()
         {
@@ -207,16 +255,18 @@ namespace ImportStudentV2
                 //для диплома нужно
                 Draw(document, student);
 
+                
 
 
-                document.Write(5, 3, student.NumApplication, 1);
-                document.Write(5, 3, student.NumApplication, 3);
+
+                document.Write(5, 3, (int)student.diplomNum, 1);
+                document.Write(5, 2, (int)student.diplomNum, 3);
 
                 document.Write(7, 2, student.Initials.Title_RU, 1);
                 document.Write(7, 2, student.Initials.Title_KZ, 3);
 
                 document.Write(9, 3, (int)student.DateApplication, 1);
-                document.Write(9, 3, (int)student.DateApplication, 3);
+                document.Write(9, 2, (int)student.DateApplication, 3);
 
                 document.Write(9, 6, student.Group.EndStudies, 1);
                 document.Write(9, 6, student.Group.EndStudies, 3);
@@ -237,8 +287,12 @@ namespace ImportStudentV2
                 {
                     document.Write(rowDiplomRU, 10, $"Защита дипломного проекта: {student.Topic.Title_RU}", 2);
                     document.Write(rowDiplomKZ, 10, $"Диплом жобасын қорғау: {student.Topic.Title_KZ}", 4);
-
-                    var defend = GetSubject("Дипломный проект", 136);
+                    int.TryParse(document.Read(rowDiplomRU, 11, 2), out int hoursDiplom);
+                    if (string.IsNullOrEmpty(hoursDiplom.ToString()))
+                    {
+                        hoursDiplom = 0;
+                    }
+                    var defend = GetSubject("Дипломный проект", hoursDiplom);
 
                     if (defend != null)
                     {
@@ -354,22 +408,31 @@ namespace ImportStudentV2
 
         static public void Draw(ExcelOldX excel, StudentModel student)
         {
-            var initialRu = student.Initials_Dat.Title_RU.Split(" ");
-            var initialKz = student.Initials_Dat.Title_KZ.Split(" ");
+            var initialRu = student.Initials_Dat.Title_RU.Trim().Replace("  ", " ").Replace("   ", " ").Split(" ");
+            var initialKz = student.Initials_Dat.Title_KZ.Trim().Replace("  ", " ").Replace("   ", " ").Split(" ");
 
             excel.Write(2, 49, initialRu[0], 6);
             excel.Write(2, 12, initialKz[0], 5);
 
-            if (initialRu.Length == 3)
+            string fio1;
+            string fio2;
+
+            if (initialRu.Length >= 3)
             {
-                excel.Write(3, 38, $"{initialRu[1]} {initialRu[2]}", 6);
-                excel.Write(3, 7, $"{initialKz[1]} {initialKz[2]}", 5);
+                fio1 = initialRu[1] + ' ' + initialRu[2];
+                fio2 = initialKz[1] + ' ' + initialKz[2];
             }
             else
             {
-                excel.Write(3, 38, initialRu[1], 6);
-                excel.Write(3, 7, initialKz[1], 5);
+                fio1 = initialRu[1];
+                fio2 = initialKz[1];
             }
+            
+
+            
+             excel.Write(3, 38, fio1, 6);
+             excel.Write(3, 7, fio2, 5);
+            
 
 
             excel.Write(15, 7, student.Group.Title.Title_KZ, 5);
@@ -454,8 +517,8 @@ namespace ImportStudentV2
 
 
             //квалификация название
-            excel.Write(15, 7, student.Group.Qualification.Title_RU, 5);
-            excel.Write(16, 38, student.Group.Qualification.Title_KZ, 6);
+            excel.Write(15, 7, student.Group.Qualification.Title_KZ, 5);
+            excel.Write(16, 38, student.Group.Qualification.Title_RU, 6);
 
             //рег номера
             excel.Write(24, 13, student.NumApplication, 5);
@@ -465,18 +528,178 @@ namespace ImportStudentV2
             string commissionDate = student.commissionDate;
             string[] comissionDateAr = commissionDate.Split(" ");
             string day = comissionDateAr[0];
-            string month = "маусым";
-            string year = "2023";
+            string month = comissionDateAr[1];
+            string year = comissionDateAr[2];
 
 
             //дата решения коммисии
             excel.Write(14, 10, day, 5);
-            excel.Write(14, 13, month, 5);
-            excel.Write(13, 25, year, 5);
+            excel.Write(14, 13, "маусым", 5);
+            excel.Write(13, 25, "2023", 5);
 
             excel.Write(13, 57, day, 6);
             excel.Write(14, 38, month, 6);
             excel.Write(14, 41, year, 6);
+
+
+        }
+
+
+
+       
+
+        static public void GenerateSvid()
+        {
+            List<int> use_ids = new List<int>();
+            string path = ViewAnswer("Введите путь до файла со свидетельством:");
+            if (GroupId != 8 && GroupId != 11 && GroupId != 9 && GroupId != 10)
+            {
+                foreach (StudentModel student in Students)
+                {
+                    var excel = GetExcelOld(path);
+                    if (GroupId != 8 && GroupId != 11 && GroupId != 9 && GroupId != 10)
+                    {
+                        var initialRu = student.Initials_Dat.Title_RU.Trim().Replace("  ", " ").Replace("   ", " ").Split(" ");
+                        var initialKz = student.Initials_Dat.Title_KZ.Trim().Replace("  ", " ").Replace("   ", " ").Split(" ");
+
+                        //7 каз
+                        //8 рус
+
+
+                        //первая половина фио
+                        excel.Write(2, 49, initialRu[0], 2);
+                        excel.Write(2, 12, initialKz[0] + ' ' + initialKz[1], 1);
+
+
+                        string fioru;
+                        string fiokz;
+
+                        if (initialRu.Length >= 3)
+                        {
+                            fioru = initialRu[1] + ' ' + initialRu[2];
+                            fiokz = initialKz[2];
+                        }
+                        else
+                        {
+                            fioru = initialRu[1];
+                            fiokz = " ";
+                        }
+
+                        //вторая половина фио
+                        excel.Write(3, 38, fioru, 8);
+                        excel.Write(3, 7, fiokz, 7);
+
+
+                        //год постулпение
+                        excel.Write(4, 8, (int)student.DateApplication, 1);
+                        excel.Write(4, 46, (int)student.DateApplication, 2);
+
+                        
+                        string qualificationNameRu = student.Group.Qualification.Title_RU.ToString();
+                        string qualificationNameKz = student.Group.Qualification.Title_KZ.ToString();
+
+                        //названия квалификации
+                        excel.Write(7, 6, qualificationNameKz, 1);
+                        excel.Write(7, 38, qualificationNameRu, 2);
+
+                        List<string> objects = new List<string>();
+
+                        switch (student.Group.Id)
+                        {
+                            case 1:
+                            case 2: //aas asj
+                                objects.Add("ПМ 06 ТО силового электрооборудования и коммутационных аппаратов эл. станций и подстанций");
+                                objects.Add("ПМ 07 Контроль релейной защиты и автоматики");
+                                objects.Add("ПМ 08 Ввод в эксплуатацию и ремонт электрооборудования эл. станций и сетей");
+                                objects.Add("ПМ 10 Выполнять основные виды работ по квалификации");
+                                break;
+
+                            case 3: //tm
+                                objects.Add("ПМ12 Проведение контроля и приемки изделий после механической обработки");
+                                objects.Add("ПМ13 Проведение испытаний и приемки узлов и механизмов оборудования");
+                                objects.Add("ПМ14 Выполнение практических работ фрезеровщика");
+                                break;
+
+                            case 4: //tora
+                                objects.Add("ПМ09 Применение общих законов механического движения");
+                                objects.Add("ПМ10 Выполнение работ согласно установленным стандартам");
+                                objects.Add("ПМ12 Проведение диагностики и ремонта электронного оборудования");
+                                objects.Add("ПМ13 Обеспечение безопасности дорожного движения");
+                                objects.Add("ПМ14 Выполнение основных видов работ мастера по ремонту транспорта");
+                                break;
+
+                            case 5:
+                            case 6:
+                            case 7: //vt
+                                objects.Add("ПМ 07 Подготовка к работе, настройка и обслуживание ПО ВС");
+                                objects.Add("ПМ 08 Применение отраслевых стандартов для создания пользовательской документации");
+                                objects.Add("ПМ 09 Диагностика, оптимизация  конфигурации  и устранение  неполадок ВС");
+                                objects.Add("ПМ 10 Выполнение практических работ");
+                                break;
+                        }
+                        int scoreRowRu = 11;
+                        int scoreRowKz = 12;
+                        foreach (string obj in objects)
+                        {
+                            var subject = GetSubject(obj);
+                            if (subject == null)
+                            {
+                                Log($"Предмет '{obj}' не найден");
+                                continue;
+                            }
+                            var grade = student.Grades.FirstOrDefault(p => p.SubjectId == subject.Id);
+                            if (grade == null || string.IsNullOrEmpty(grade.Score) || grade.Score == null)
+                            {
+                                Log($"[{student.Initials.Get}] Нету оценки: '{obj}'");
+                                continue;
+                            }
+                            grade.Score = grade.Score.Split(',')[0];
+
+                            var scoreRu = GetScore(grade.Score, true);
+                            var scoreKz = GetScore(grade.Score, false);
+
+
+                            //оценки предметов
+                            excel.Write(scoreRowKz, 23, scoreKz.Lang, 1);
+                            excel.Write(scoreRowRu, 56, scoreRu.Lang, 2);
+
+
+                            scoreRowKz += 2;
+                            scoreRowRu += 2;
+                        }
+
+                        string commissionDate = student.commissionDate;
+                        string[] comissionDateAr = commissionDate.Split(" ");
+                        string day = comissionDateAr[0];
+
+                        //день решения коммиссии
+                        excel.Write(24, 23, day, 1);
+                        excel.Write(22, 57, day, 2);
+
+
+                        string razradRu = student.Group.svidrazrad1.Title_RU;
+                        string razradKz = student.Group.svidrazrad1.Title_KZ;
+                        string qualRu = student.Group.svidqual1.Title_RU;
+                        string qualKz = student.Group.svidqual1.Title_KZ;
+
+                        //квалификации и разряды
+                        excel.Write(26, 10, razradKz, 1);
+                        excel.Write(27, 6, qualKz, 1);
+                        excel.Write(24, 38, qualRu + ' ' + razradRu, 2);
+
+
+                        //рег номера свидетельства
+                        excel.Write(36, 14, (int)student.regnumSvid, 1);
+                        excel.Write(32, 49, (int)student.regnumSvid, 2);
+
+                        excel.Save(Path.Combine("Группы", $"{student.Initials.Title_RU}_svid.xls"));
+                        Log($"Документ '{student.Initials.Title_RU}'_svid.xls сгенерирован");
+                    }
+                }
+            }    
+            
+
+
 
 
         }
@@ -688,7 +911,7 @@ namespace ImportStudentV2
                 //    else
                 //        subject = GetSubject("Алгоритмизация и программирование (курсовой проект)");
                 //}
-                for (int row = startRow; row < startRow + Students.Count; row++)
+                for (int row = startRow; row < startRow + Students.Count + 5; row++)
                 {
                     string surname = document.Read(row, nameColumn);
                     StudentModel student = Students.FirstOrDefault(p=>p.Initials.Title_RU.StartsWith(surname));
