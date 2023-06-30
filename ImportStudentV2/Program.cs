@@ -567,8 +567,8 @@ namespace ImportStudentV2
 
 
                         //первая половина фио
-                        excel.Write(2, 49, initialRu[0], 2);
-                        excel.Write(2, 12, initialKz[0] + ' ' + initialKz[1], 1);
+                        excel.Write(2, 41, initialRu[0], 2);
+                        excel.Write(2, 7, initialKz[0] + ' ' + initialKz[1], 1);
 
 
                         string fioru;
@@ -586,21 +586,21 @@ namespace ImportStudentV2
                         }
 
                         //вторая половина фио
-                        excel.Write(3, 38, fioru, 8);
-                        excel.Write(3, 7, fiokz, 7);
+                        excel.Write(3, 38, fioru, 1);
+                        excel.Write(3, 2, fiokz, 1);
 
 
                         //год постулпение
-                        excel.Write(4, 8, (int)student.DateApplication, 1);
-                        excel.Write(4, 46, (int)student.DateApplication, 2);
+                        excel.Write(4, 2, (int)student.DateApplication, 1);
+                        excel.Write(4, 54, (int)student.DateApplication, 1);
 
                         
                         string qualificationNameRu = student.Group.Qualification.Title_RU.ToString();
                         string qualificationNameKz = student.Group.Qualification.Title_KZ.ToString();
 
                         //названия квалификации
-                        excel.Write(7, 6, qualificationNameKz, 1);
-                        excel.Write(7, 38, qualificationNameRu, 2);
+                        excel.Write(7, 1, qualificationNameKz, 1);
+                        excel.Write(7, 31, qualificationNameRu, 1);
 
                         List<string> objects = new List<string>();
 
@@ -615,17 +615,17 @@ namespace ImportStudentV2
                                 break;
 
                             case 3: //tm
-                                objects.Add("ПМ12 Проведение контроля и приемки изделий после механической обработки");
-                                objects.Add("ПМ13 Проведение испытаний и приемки узлов и механизмов оборудования");
-                                objects.Add("ПМ14 Выполнение практических работ фрезеровщика");
+                                objects.Add("ПМ 01 Соcтавление,чтение и офомление чертежей по профилю специальности");
+                                objects.Add("ПМ 02 Применение основ технической механики в профессиональной деятельности");
+                                objects.Add("ПМ 03 Основы технологии машиностроения");
                                 break;
 
                             case 4: //tora
-                                objects.Add("ПМ09 Применение общих законов механического движения");
-                                objects.Add("ПМ10 Выполнение работ согласно установленным стандартам");
-                                objects.Add("ПМ12 Проведение диагностики и ремонта электронного оборудования");
-                                objects.Add("ПМ13 Обеспечение безопасности дорожного движения");
-                                objects.Add("ПМ14 Выполнение основных видов работ мастера по ремонту транспорта");
+                                objects.Add("ПМ 09 Применение общих законов механического движения");
+                                objects.Add("ПМ 10 Выполнение работ согласно установленным стандартам");
+                                objects.Add("ПМ 12 Проведение диагностики и ремонта электронного оборудования");
+                                objects.Add("ПМ 13 Обеспечение безопасности дорожного движения");
+                                objects.Add("ПМ 14 Выполнение основных видов работ мастера по ремонту транспорта");
                                 break;
 
                             case 5:
@@ -637,8 +637,8 @@ namespace ImportStudentV2
                                 objects.Add("ПМ 10 Выполнение практических работ");
                                 break;
                         }
-                        int scoreRowRu = 11;
-                        int scoreRowKz = 12;
+                        int scoreRowRu = 12;
+                        int scoreRowKz = 13;
                         foreach (string obj in objects)
                         {
                             var subject = GetSubject(obj);
@@ -660,8 +660,8 @@ namespace ImportStudentV2
 
 
                             //оценки предметов
-                            excel.Write(scoreRowKz, 23, scoreKz.Lang, 1);
-                            excel.Write(scoreRowRu, 56, scoreRu.Lang, 2);
+                            excel.Write(scoreRowKz, 19, scoreKz.Lang, 1);
+                            excel.Write(scoreRowRu, 52, scoreRu.Lang, 1);
 
 
                             scoreRowKz += 2;
@@ -673,8 +673,8 @@ namespace ImportStudentV2
                         string day = comissionDateAr[0];
 
                         //день решения коммиссии
-                        excel.Write(24, 23, day, 1);
-                        excel.Write(22, 57, day, 2);
+                        excel.Write(23, 20, day, 1);
+                        excel.Write(23, 51, day, 1);
 
 
                         string razradRu = student.Group.svidrazrad1.Title_RU;
@@ -683,14 +683,14 @@ namespace ImportStudentV2
                         string qualKz = student.Group.svidqual1.Title_KZ;
 
                         //квалификации и разряды
-                        excel.Write(26, 10, razradKz, 1);
-                        excel.Write(27, 6, qualKz, 1);
-                        excel.Write(24, 38, qualRu + ' ' + razradRu, 2);
+                        excel.Write(24, 5, razradKz, 1);
+                        excel.Write(25, 1, qualKz, 1);
+                        excel.Write(25, 31, qualRu + ' ' + razradRu, 1);
 
 
                         //рег номера свидетельства
-                        excel.Write(36, 14, (int)student.regnumSvid, 1);
-                        excel.Write(32, 49, (int)student.regnumSvid, 2);
+                        excel.Write(33, 9, (int)student.regnumSvid, 1);
+                        excel.Write(33, 45, (int)student.regnumSvid, 1);
 
                         excel.Save(Path.Combine("Группы", $"{student.Initials.Title_RU}_svid.xls"));
                         Log($"Документ '{student.Initials.Title_RU}'_svid.xls сгенерирован");
