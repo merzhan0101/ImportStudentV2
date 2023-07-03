@@ -39,7 +39,7 @@ namespace ImportStudentV2
 
         static List<GroupModel> Groups => Repository.Groups
             .AsNoTracking()
-            .Include(p=>p.Title)
+            .Include(g => g.Title)
             .ToList();
 
 
@@ -52,7 +52,7 @@ namespace ImportStudentV2
             Log("Выберите действие:");
 
 
-            int num = ViewSelect("Темы","Ведомость","Дипломы","Рег номера","Удалить ведомость", "Удалить  все", "Номера дипломов");
+            int num = ViewSelect("Темы","Ведомость","Дипломы","Рег номера","Удалить ведомость", "Удалить  все", "Номера дипломов", "Свидетельство");
 
             switch(num+1)
             {
@@ -567,7 +567,7 @@ namespace ImportStudentV2
 
 
                         //первая половина фио
-                        excel.Write(2, 41, initialRu[0], 2);
+                        excel.Write(2, 41, initialRu[0], 1);
                         excel.Write(2, 7, initialKz[0] + ' ' + initialKz[1], 1);
 
 
@@ -586,7 +586,7 @@ namespace ImportStudentV2
                         }
 
                         //вторая половина фио
-                        excel.Write(3, 38, fioru, 1);
+                        excel.Write(3, 32, fioru, 1);
                         excel.Write(3, 2, fiokz, 1);
 
 
@@ -595,12 +595,12 @@ namespace ImportStudentV2
                         excel.Write(4, 54, (int)student.DateApplication, 1);
 
                         
-                        string qualificationNameRu = student.Group.Qualification.Title_RU.ToString();
-                        string qualificationNameKz = student.Group.Qualification.Title_KZ.ToString();
+                        //string qualificationNameRu = student.Group.Qualification.Title_RU.ToString();
+                        //string qualificationNameKz = student.Group.Qualification.Title_KZ.ToString();
 
-                        //названия квалификации
-                        excel.Write(7, 1, qualificationNameKz, 1);
-                        excel.Write(7, 31, qualificationNameRu, 1);
+                        ////названия квалификации
+                        //excel.Write(7, 1, qualificationNameKz, 1);
+                        //excel.Write(9, 31, qualificationNameRu, 1);
 
                         List<string> objects = new List<string>();
 
@@ -637,8 +637,8 @@ namespace ImportStudentV2
                                 objects.Add("ПМ 10 Выполнение практических работ");
                                 break;
                         }
-                        int scoreRowRu = 12;
-                        int scoreRowKz = 13;
+                        int scoreRowRu = 13;
+                        int scoreRowKz = 12;
                         foreach (string obj in objects)
                         {
                             var subject = GetSubject(obj);
@@ -677,15 +677,68 @@ namespace ImportStudentV2
                         excel.Write(23, 51, day, 1);
 
 
-                        string razradRu = student.Group.svidrazrad1.Title_RU;
-                        string razradKz = student.Group.svidrazrad1.Title_KZ;
-                        string qualRu = student.Group.svidqual1.Title_RU;
-                        string qualKz = student.Group.svidqual1.Title_KZ;
+                        //string razradRu = "III (третьего) разряда";
+                        //string razradKz = "III (үшінші) разрядты";
+                        //string qualRu = "";
+                        //string qualKz = "";
 
-                        //квалификации и разряды
-                        excel.Write(24, 5, razradKz, 1);
-                        excel.Write(25, 1, qualKz, 1);
-                        excel.Write(25, 31, qualRu + ' ' + razradRu, 1);
+                        //switch (student.Group.Id)
+                        //{
+                        //    case 1:
+                        //    case 2:
+                        //        qualRu = "090102 2 «Электрослесарь по ремонту электрооборудования электростанций»";
+                        //        qualKz = "090102 2 \"Электр станцияларындағы электр жабдықтарын жөндеуші электр слесарі\"";
+                        //        break;
+                        //    case 3:
+                        //        qualRu = "110901 2 \"Токарь\"";
+                        //        qualKz = "110901 2 \"Токарь\"";
+                        //        break;
+                        //    case 4:
+                        //        qualRu = "120109 2 «Мастер по ремонту транспорта»";
+                        //        qualKz = "120109 2 «Көлікті жөндеу шебері»";
+                        //        break;
+                        //    case 5:
+                        //    case 6:
+                        //    case 7:
+                        //        qualRu = "130408 2 «Наладчик компьютерных сетей, цифровой и электронной аппаратуры»";
+                        //        qualKz = "130408 2 «Компьютерлік желілерді, цифрлық және электрондық аппаратураны баптаушы»";
+                        //        break;
+                        //}
+
+
+                        //string[] qualArRu = (qualRu + ' ' +  razradRu).Split(" ");
+                        //string[] qualArKz = (razradKz + ' ' + qualKz).Split(" ");
+                        //string qualRu1 = "", qualRu2 = "";
+                        //string qualKz1 = "", qualKz2 = "";
+                        //for(int i =0; i< qualArRu.Length; i++)
+                        //{
+                        //    if(i <= 2)
+                        //    {
+                        //        qualRu1 += qualArRu[i] + ' ';
+                        //    }
+                        //    else
+                        //    {
+                        //        qualRu2 += qualArRu[i] + ' ';
+                        //    }
+                        //}
+                        //for (int i = 0; i < qualArKz.Length; i++)
+                        //{
+                        //    if (i <= 6)
+                        //    {
+                        //        qualKz1 += qualArKz[i] + ' ';
+                        //    }
+                        //    else
+                        //    {
+                        //        qualKz2 += qualArKz[i] + ' ';
+                        //    }
+                        //}
+
+                        ////квалификации и разряды
+                        //excel.Write(24, 5, qualKz1, 1);
+                        //excel.Write(25, 1, qualKz2, 1);
+
+                        //excel.Write(24, 52, qualRu1, 1);
+                        //excel.Write(25, 31, qualRu2, 1);
 
 
                         //рег номера свидетельства
@@ -852,14 +905,14 @@ namespace ImportStudentV2
             var document = GetExcel(path);
             bool bug = false;
             int rowTitleRU = int.Parse(ViewAnswer("Укажите номер строки где расположены названия предметов(на русском)"));
-            int rowTitleKZ = int.Parse(ViewAnswer("Укажите номер строки где расположены названия предметов(на казахском)"));
+            //int rowTitleKZ = int.Parse(ViewAnswer("Укажите номер строки где расположены названия предметов(на казахском)"));
 
-            int rowHours = int.Parse(ViewAnswer("Укажите номер строки с часами"));
+            //int rowHours = int.Parse(ViewAnswer("Укажите номер строки с часами"));
 
             int startRow = int.Parse(ViewAnswer("Введите номер строки студентов:"));
             int nameColumn = int.Parse(ViewAnswer("Введите номер колонки фамилии студентов"));
 
-            int ZIndexRow = int.Parse(ViewAnswer("Укажите номер строки с порядковыми номерами"));
+            //int ZIndexRow = int.Parse(ViewAnswer("Укажите номер строки с порядковыми номерами"));
 
             for (int col = 1; col <= 115; col++)
             {
@@ -867,10 +920,10 @@ namespace ImportStudentV2
                 if (string.IsNullOrEmpty(title))
                     continue;
 
-                int.TryParse(document.Read(rowHours, col), out int hours);
-                int.TryParse(document.Read(ZIndexRow, col), out int zindex);
+                //int.TryParse(document.Read(rowHours, col), out int hours);
+                //int.TryParse(document.Read(ZIndexRow, col), out int zindex);
 
-                SubjectModel subject = GetSubject(title, hours, zindex);
+                SubjectModel subject = GetSubject(title);
 
                 if (subject == null)
                 {
@@ -886,10 +939,10 @@ namespace ImportStudentV2
                             Title = new LocalizerModel()
                             {
                                 Title_RU = title,
-                                Title_KZ = document.Read(rowTitleKZ, col)
+                                Title_KZ = " " //document.Read(rowTitleKZ, col)
                             },
-                            Hours = hours,
-                            ZIndex = zindex
+                            Hours = 0,//hours,
+                            ZIndex = 0//zindex
                         };
                         Repository.SaveChanges();
                         Log($"Создан предмет {title}");

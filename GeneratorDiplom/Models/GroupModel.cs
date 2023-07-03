@@ -14,8 +14,7 @@ namespace GeneratorDiplom.Models
 
         public LocalizerModel Title { get; set; }
         public LocalizerModel Qualification { get; set; }
-        public LocalizerModel svidqual1 { get; set; }
-        public LocalizerModel svidrazrad1 { get; set; }
+      
 
         public string Code { get; set; }
 
@@ -26,5 +25,8 @@ namespace GeneratorDiplom.Models
         public int EndStudies { get; set; }
 
         public List<SubjectModel> Subjects { get; set; }
+
+        public LocalizerModel svidqual { get; set; }
+        public LocalizerModel svidrazrad { get; set; }
     }
 }
