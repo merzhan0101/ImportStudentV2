@@ -957,13 +957,6 @@ namespace ImportStudentV2
                     //}
                 }
 
-                //if (subject.Title.Title_RU == "Алгоритмизация и программирование")
-                //{
-                //    if (!bug)
-                //        bug = !bug;
-                //    else
-                //        subject = GetSubject("Алгоритмизация и программирование (курсовой проект)");
-                //}
                 for (int row = startRow; row < startRow + Students.Count + 5; row++)
                 {
                     string surname = document.Read(row, nameColumn);
